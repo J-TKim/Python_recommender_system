@@ -111,3 +111,32 @@ def cf_gender(user_id, movie_id):
 
 score(cf_gender)
 
+
+# ## 연습문제 2-1
+
+# In[10]:
+
+
+###### occupation기준 추천 ######
+# occupation별 평균을 예측치로 돌려주는 함수
+def cf_occupation(user_id, movie_id):
+    if movie_id in rating_matrix:
+        job = users.loc[user_id]["occupation"]
+        if job in g_mean[movie_id]:
+            job_rating = g_mean[movie_id][job]
+        else:
+            job_rating = 3.0
+    else:
+        job_rating = 3.0
+    return job_rating
+
+score(cf_occupation)
+
+
+# ## 연습문제 2-2
+
+# In[ ]:
+
+
+
+
