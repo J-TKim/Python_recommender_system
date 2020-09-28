@@ -112,6 +112,50 @@ def cf_knn(user_id, movie_id, neighbor_size=0):
         mean_rating = 3.0
     return mean_rating
 
-# 정확도 계산
+# 정확도 계산b
 score(cf_knn, neighbor_size=30)
+
+
+# In[10]:
+
+
+##### (4) 주어진 사용자에 대해 추천을 받기
+# 전체 데이터로 full matrix와 cosine similarity 구하기
+ratring_matrix = ratings.pivot_table(values="rating", index="user_id", columns="movie_id")
+
+from sklearn.metrics.pairwise import cosine_similarity
+
+matrix_dummy = rating_matrix.copy().fillna(0)
+user_similarity = cosine_similarity(matrix_dummy, matrix_dummy)
+user_similarity = pd.DataFrame(user_similarity, index=rating_matrix.index, columns=rating_matrix.index)
+
+def recom_movie(user_id, n_items, neighbor_size=30):
+    user_movie = rating_matrix.loc[user_id].copy()
+    for movie in rating_matrix:
+        if pd.notnull(user_movie.loc[movie]):
+            user_movie.loc[movie] = 0
+        else:
+            user_movie.loc[movie] = cf_knn(user_id, movie, neighbor_size)
+    movie_sort = user_movie.sort_values(ascending=False)[:n_items]
+    recom_movies = movies.loc[movie_sort.index]
+    recommendations = recom_movies["title"]
+    return recommendations
+
+recom_movie(user_id=2, n_items=5, neighbor_size=30)
+
+
+# In[11]:
+
+
+##### (5) 최적의 neighbor size 구하기
+# train set으로 full matrix와 cosine similarity 구하기
+rating_matrix = x_train.pivot_table(values="rating", index="user_id", columns="movie_id")
+
+from sklearn.metrics.pairwise import cosine_similarity
+
+matrix_dummy = rating_matrix.copy().fillna(0)
+user_simility = cosine_similarity(matrix_dummy, matrix_dummy)
+user_similarity = pd.DataFrame(user_similarity, index=rating_matrix.index, columns=rating_matrix.index)
+for neighbor_size in [10, 20, 30, 40, 50, 60]:
+    print("Neighbor suze = %d : RMSE = %.4f" % (neighbor_size, score(cf_knn, neighbor_size)))
 
